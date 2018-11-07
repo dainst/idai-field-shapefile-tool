@@ -1,4 +1,4 @@
-package org.dainst.idaifield;
+package org.dainst.idaifield.export;
 
 import org.dainst.idaifield.model.Geometry;
 import org.dainst.idaifield.model.GeometryType;
@@ -197,7 +197,7 @@ class ShapefileWriter {
             try {
                 transaction.rollback();
                 throw new Exception("Failed to commit data to feature store", e);
-            } catch (IOException e2 ) {
+            } catch (IOException e2) {
                 throw new Exception("Failed to commit data to feature store; transaction rollback failed", e2);
             }
         } finally {
@@ -256,8 +256,7 @@ class ShapefileWriter {
                 double[][] linearRingCoordinates = polygonCoordinates[j];
                 List<Coordinate> points = new ArrayList<>();
 
-                for (int k = 0; k < linearRingCoordinates.length; k++) {
-                    double[] pointCoordinates = linearRingCoordinates[k];
+                for (double[] pointCoordinates : linearRingCoordinates) {
                     points.add(new Coordinate(pointCoordinates[0], pointCoordinates[1]));
                 }
 

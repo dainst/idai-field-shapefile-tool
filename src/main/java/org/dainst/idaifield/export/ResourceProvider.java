@@ -1,4 +1,4 @@
-package org.dainst.idaifield;
+package org.dainst.idaifield.export;
 
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;

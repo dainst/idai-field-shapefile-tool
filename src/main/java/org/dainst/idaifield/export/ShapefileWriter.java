@@ -1,6 +1,5 @@
 package org.dainst.idaifield.export;
 
-import org.dainst.idaifield.model.Geometry;
 import org.dainst.idaifield.model.GeometryType;
 import org.dainst.idaifield.model.Resource;
 import org.geotools.data.DataUtilities;

@@ -45,7 +45,7 @@ class ResourceProvider {
             CloseableHttpResponse response = httpClient.execute(httpPost);
 
             try {
-                JSONObject json = new JSONObject(EntityUtils.toString(response.getEntity()));
+                JSONObject json = new JSONObject(EntityUtils.toString(response.getEntity(), "UTF-8"));
                 return json.getJSONArray("docs");
             } finally {
                 response.close();

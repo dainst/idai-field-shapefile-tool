@@ -38,15 +38,11 @@ class ShapefileWriter {
             + "type:String";
 
 
-    static void writeShapefile(File shapefileFolder,
-                                      Map<GeometryType, List<Resource>> resources) throws Exception {
+    static void writeShapefile(File shapefileFolder, Map<GeometryType,
+                               List<Resource>> resources) throws Exception {
 
-        try {
-            for (GeometryType geometryType : resources.keySet()) {
-                createFiles(resources.get(geometryType), shapefileFolder, geometryType);
-            }
-        } catch(Exception e) {
-            throw new Exception("Error during shapefile creation", e);
+        for (GeometryType geometryType : resources.keySet()) {
+            createFiles(resources.get(geometryType), shapefileFolder, geometryType);
         }
     }
 

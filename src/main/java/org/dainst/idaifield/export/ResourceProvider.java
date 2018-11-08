@@ -60,13 +60,15 @@ class ResourceProvider {
 
     private static String getQuery(String operationId) {
 
-        String query = "{ \"selector\": { \"resource.geometry\": { \"$gt\": null } ";
+        String query = "{ \"selector\": { \"resource.geometry\": { \"$gt\": null }";
 
         if (!operationId.equals("project")) {
-            query += ", \"resource.relations.isRecordedIn\": { \"$elemMatch\": { \"$eq\": \"bu1\" } } ";
+            query += ", \"$or\": [{ \"resource.id\": \"" + operationId + "\" }, "
+                    + "{ \"resource.relations.isRecordedIn\": { \"$elemMatch\": " +
+                    "{ \"$eq\": \"" + operationId + "\" } } }]";
         }
 
-        return query + "} }";
+        return query + " } }";
     }
 
 

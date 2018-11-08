@@ -14,8 +14,8 @@ import java.util.Map;
  */
 public class ShapefileExporter {
 
-    public static void export(String projectName, String outputFilePath,
-                              String tempFolderPath, String epsg) throws Exception {
+    public static void export(String projectName, String outputFilePath, String tempFolderPath,
+                              String operationId, String epsg) throws Exception {
 
         String outputFolderPath = outputFilePath.substring(0, outputFilePath.lastIndexOf(File.separator));
         String outputFileName = outputFilePath.substring(
@@ -29,7 +29,8 @@ public class ShapefileExporter {
         }
 
         try {
-            Map<GeometryType, List<Resource>> resources = ResourceProvider.getResources(projectName);
+            Map<GeometryType, List<Resource>> resources = ResourceProvider.getResources(projectName,
+                    operationId);
             ShapefileWriter.write(shapefileFolder, resources, epsg);
             ZipArchiveBuilder.buildZipArchive(shapefileFolder, outputFolderPath);
         } finally {

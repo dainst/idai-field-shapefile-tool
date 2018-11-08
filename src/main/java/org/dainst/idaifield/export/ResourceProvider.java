@@ -24,15 +24,16 @@ import java.util.Map;
  */
 class ResourceProvider {
 
-    static Map<GeometryType, List<Resource>> getResources(String projectName) throws Exception {
+    static Map<GeometryType, List<Resource>> getResources(String projectName,
+                                                          String operationId) throws Exception {
 
-        List<Resource> resources = extractResources(getJsonData(projectName));
+        List<Resource> resources = extractResources(getJsonData(projectName, operationId));
 
         return getResourcesMap(resources);
     }
 
 
-    private static JSONArray getJsonData(String projectName) throws Exception {
+    private static JSONArray getJsonData(String projectName, String operationId) throws Exception {
 
         CloseableHttpClient httpClient = HttpClients.createDefault();
 
@@ -40,12 +41,13 @@ class ResourceProvider {
             HttpPost httpPost = new HttpPost("http://localhost:3000/" + projectName + "/_find");
             httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
             httpPost.setHeader(HttpHeaders.ACCEPT, "application/json");
-            httpPost.setEntity(new StringEntity("{ \"selector\": { \"resource.geometry\": { \"$gt\": null } } }"));
+            httpPost.setEntity(new StringEntity(getQuery(operationId)));
 
             CloseableHttpResponse response = httpClient.execute(httpPost);
 
             try {
-                JSONObject json = new JSONObject(EntityUtils.toString(response.getEntity(), "UTF-8"));
+                JSONObject json = new JSONObject(EntityUtils.toString(response.getEntity(),
+                        "UTF-8"));
                 return json.getJSONArray("docs");
             } finally {
                 response.close();
@@ -53,6 +55,18 @@ class ResourceProvider {
         } finally {
             httpClient.close();
         }
+    }
+
+
+    private static String getQuery(String operationId) {
+
+        String query = "{ \"selector\": { \"resource.geometry\": { \"$gt\": null } ";
+
+        if (!operationId.equals("project")) {
+            query += ", \"resource.relations.isRecordedIn\": { \"$elemMatch\": { \"$eq\": \"bu1\" } } ";
+        }
+
+        return query + "} }";
     }
 
 

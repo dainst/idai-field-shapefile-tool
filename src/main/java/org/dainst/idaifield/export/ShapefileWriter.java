@@ -12,7 +12,6 @@ import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.simple.SimpleFeatureStore;
-import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.locationtech.jts.geom.*;
@@ -38,33 +37,33 @@ class ShapefileWriter {
             + "type:String";
 
 
-    static void writeShapefile(File shapefileFolder, Map<GeometryType,
-                               List<Resource>> resources) throws Exception {
+    static void write(File shapefileFolder, Map<GeometryType, List<Resource>> resources,
+                      String epsg) throws Exception {
 
         for (GeometryType geometryType : resources.keySet()) {
-            createFiles(resources.get(geometryType), shapefileFolder, geometryType);
+            createFiles(resources.get(geometryType), shapefileFolder, geometryType, epsg);
         }
     }
 
 
     private static void createFiles(List<Resource> resources, File folder,
-                                    GeometryType geometryType) throws Exception {
+                                    GeometryType geometryType, String epsg) throws Exception {
 
         String outputFilePath = folder.getAbsolutePath() + File.separator
                 + geometryType.name().toLowerCase() + "s.shp";
 
         File outputFile = new File(outputFilePath);
 
-        MemoryDataStore memoryDataStore = createMemoryDataStore(resources, geometryType);
+        MemoryDataStore memoryDataStore = createMemoryDataStore(resources, geometryType, epsg);
 
         if (memoryDataStore != null) writeShapefile(memoryDataStore, outputFile);
     }
 
 
-    private static MemoryDataStore createMemoryDataStore(List<Resource> resources,
-                                                         GeometryType geometryType) throws Exception {
+    private static MemoryDataStore createMemoryDataStore(List<Resource> resources, GeometryType geometryType,
+                                                         String epsg) throws Exception {
 
-        SimpleFeatureType featureType = createFeatureType(geometryType);
+        SimpleFeatureType featureType = createFeatureType(geometryType, epsg);
 
         MemoryDataStore memoryDataStore = new MemoryDataStore();
         memoryDataStore.createSchema(featureType);
@@ -87,27 +86,28 @@ class ShapefileWriter {
     }
 
 
-    private static SimpleFeatureType createFeatureType(GeometryType geometryType) throws Exception {
+    private static SimpleFeatureType createFeatureType(GeometryType geometryType,
+                                                       String epsg) throws Exception {
 
-        String schema = null;
+        String geometryName = null;
 
         switch(geometryType) {
             case MULTIPOINT:
-                schema = "the_geom:MultiPoint," + dataSchema;
+                geometryName = "MultiPoint";
                 break;
             case MULTIPOLYLINE:
-                schema = "the_geom:MultiLineString," + dataSchema;
+                geometryName = "MultiLineString";
                 break;
             case MULTIPOLYGON:
-                schema = "the_geom:MultiPolygon," + dataSchema;
+                geometryName = "MultiPolygon";
                 break;
         }
 
-        try {
-            return DataUtilities.createType(geometryType.name().toLowerCase(), schema);
-        } catch (SchemaException e) {
-            throw new Exception("Failed to create feature types", e);
-        }
+        String schema = "the_geom:" + geometryName;
+        if (epsg != null) schema += ":srid=" + epsg;
+        schema += "," + dataSchema;
+
+        return DataUtilities.createType(geometryType.name().toLowerCase(), schema);
     }
 
 

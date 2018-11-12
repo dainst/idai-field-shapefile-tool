@@ -43,7 +43,7 @@ public class ShapefileTool {
 
     private static void runExporter(String[] arguments) throws Exception {
 
-        if (arguments.length < 5 || arguments.length > 6 || !arguments[1].contains(File.separator)) {
+        if (arguments.length < 5 || arguments.length > 6 || !arguments[2].contains(File.separator)) {
             printUsageInformation();
             return;
         }

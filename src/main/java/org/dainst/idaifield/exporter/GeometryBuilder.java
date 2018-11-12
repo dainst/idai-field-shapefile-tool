@@ -1,4 +1,4 @@
-package org.dainst.idaifield.export;
+package org.dainst.idaifield.exporter;
 
 import org.dainst.idaifield.model.Geometry;
 import org.locationtech.jts.geom.*;

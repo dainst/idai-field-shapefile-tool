@@ -1,6 +1,7 @@
 package org.dainst.idaifield;
 
-import org.dainst.idaifield.export.ShapefileExporter;
+import org.dainst.idaifield.exporter.ShapefileExporter;
+import org.dainst.idaifield.importer.ShapefileImporter;
 
 import java.io.File;
 
@@ -12,17 +13,50 @@ public class ShapefileTool {
 
     public static void main(String[] arguments) {
 
-        if (arguments.length < 4 || arguments.length > 5 || !arguments[1].contains(File.separator)) {
-            System.err.println("java -jar shapefile-tool.jar projectName outputFilePath tempFolderPath "
-                    + "operation epsg");
+        try {
+            switch(arguments[0]) {
+                case "import":
+                    runImporter(arguments);
+                    break;
+                case "export":
+                    runExporter(arguments);
+                    break;
+                default:
+                    printUsageInformation();
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private static void runImporter(String[] arguments) throws Exception {
+
+        if (arguments.length != 4) {
+            printUsageInformation();
             return;
         }
 
-        try {
-            ShapefileExporter.export(arguments[0], arguments[1], arguments[2], arguments[3],
-                    arguments.length == 5 ? arguments[4] : null);
-        } catch(Exception e) {
-            System.err.println(e);
+        ShapefileImporter.run(arguments[1], arguments[2], arguments[3]);
+    }
+
+
+    private static void runExporter(String[] arguments) throws Exception {
+
+        if (arguments.length < 5 || arguments.length > 6 || !arguments[1].contains(File.separator)) {
+            printUsageInformation();
+            return;
         }
+
+        ShapefileExporter.run(arguments[1], arguments[2], arguments[3], arguments[4],
+                arguments.length == 6 ? arguments[5] : null);
+    }
+
+
+    private static void printUsageInformation() {
+
+        System.err.println("java -jar shapefile-tool.jar import [projectName] [userName] [shapefilePath]");
+        System.err.println("java -jar shapefile-tool.jar export [projectName] [outputFilePath] "
+                + "[tempFolderPath] [operation] [epsg]");
     }
 }

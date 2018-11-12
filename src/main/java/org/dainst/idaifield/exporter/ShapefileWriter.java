@@ -1,4 +1,4 @@
-package org.dainst.idaifield.export;
+package org.dainst.idaifield.exporter;
 
 import org.dainst.idaifield.model.GeometryType;
 import org.dainst.idaifield.model.Resource;
@@ -191,9 +191,9 @@ class ShapefileWriter {
         } catch (IOException e) {
             try {
                 transaction.rollback();
-                throw new Exception("Failed to commit data to feature store", e);
+                throw new Exception("Failed to commit datastore to feature store", e);
             } catch (IOException e2) {
-                throw new Exception("Failed to commit data to feature store; transaction rollback failed", e2);
+                throw new Exception("Failed to commit datastore to feature store; transaction rollback failed", e2);
             }
         } finally {
             transaction.close();

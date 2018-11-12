@@ -1,4 +1,4 @@
-package org.dainst.idaifield.export;
+package org.dainst.idaifield.exporter;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -14,7 +14,7 @@ import java.util.zip.ZipOutputStream;
  */
 class ZipArchiveBuilder {
 
-    static final int BUFFER = 2048;
+    private static final int BUFFER = 2048;
 
 
     static void buildZipArchive(File inputFolder, String outputFolderPath) throws Exception {

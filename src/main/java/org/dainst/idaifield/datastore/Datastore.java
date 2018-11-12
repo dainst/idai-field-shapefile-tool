@@ -1,8 +1,9 @@
-package org.dainst.idaifield.export;
+package org.dainst.idaifield.datastore;
 
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -22,18 +23,59 @@ import java.util.Map;
 /**
  * @author Thomas Kleinke
  */
-class ResourceProvider {
+public class Datastore {
 
-    static Map<GeometryType, List<Resource>> getResources(String projectName,
-                                                          String operationId) throws Exception {
+    public static Map<GeometryType, List<Resource>> getResourcesWithGeometry(String projectName,
+                                                                             String operationId) throws Exception {
 
-        List<Resource> resources = extractResources(getJsonData(projectName, operationId));
+        String query = "{ \"selector\": { \"resource.geometry\": { \"$gt\": null }";
 
-        return getResourcesMap(resources);
+        if (!operationId.equals("project")) {
+            query += ", \"$or\": [{ \"resource.id\": \"" + operationId + "\" }, "
+                    + "{ \"resource.relations.isRecordedIn\": { \"$elemMatch\": " +
+                    "{ \"$eq\": \"" + operationId + "\" } } }]";
+        }
+
+        query += " } }";
+
+        return getResourcesMap(extractResources(getJsonData(projectName, query)));
     }
 
 
-    private static JSONArray getJsonData(String projectName, String operationId) throws Exception {
+    public static JSONObject getJSONDocument(String projectName, String resourceId) throws Exception {
+
+        String query = "{ \"selector\": { \"resource.id\": \"" + resourceId + "\" } }";
+
+        JSONArray json = getJsonData(projectName, query);
+        if (json.length() == 0) {
+            throw new Exception("RESOURCE_NOT_FOUND " + resourceId);
+        } else {
+            return json.getJSONObject(0);
+        }
+    }
+
+
+    public static void update(String projectName, JSONObject document) throws Exception {
+
+        System.out.println(document.get("_id"));
+
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+
+        try {
+            HttpPut httpPut = new HttpPut("http://localhost:3000/" + projectName + "/"
+                    + document.get("_id"));
+            httpPut.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+            httpPut.setHeader(HttpHeaders.ACCEPT, "application/json");
+            httpPut.setEntity(new StringEntity(document.toString()));
+
+            httpClient.execute(httpPut);
+        } finally {
+            httpClient.close();
+        }
+    }
+
+
+    private static JSONArray getJsonData(String projectName, String query) throws Exception {
 
         CloseableHttpClient httpClient = HttpClients.createDefault();
 
@@ -41,7 +83,7 @@ class ResourceProvider {
             HttpPost httpPost = new HttpPost("http://localhost:3000/" + projectName + "/_find");
             httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
             httpPost.setHeader(HttpHeaders.ACCEPT, "application/json");
-            httpPost.setEntity(new StringEntity(getQuery(operationId)));
+            httpPost.setEntity(new StringEntity(query));
 
             CloseableHttpResponse response = httpClient.execute(httpPost);
 
@@ -55,20 +97,6 @@ class ResourceProvider {
         } finally {
             httpClient.close();
         }
-    }
-
-
-    private static String getQuery(String operationId) {
-
-        String query = "{ \"selector\": { \"resource.geometry\": { \"$gt\": null }";
-
-        if (!operationId.equals("project")) {
-            query += ", \"$or\": [{ \"resource.id\": \"" + operationId + "\" }, "
-                    + "{ \"resource.relations.isRecordedIn\": { \"$elemMatch\": " +
-                    "{ \"$eq\": \"" + operationId + "\" } } }]";
-        }
-
-        return query + " } }";
     }
 
 

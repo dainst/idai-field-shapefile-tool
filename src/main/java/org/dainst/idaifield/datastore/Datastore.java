@@ -171,13 +171,18 @@ public class Datastore {
 
     private static double[] extractPointCoordinates(JSONArray jsonCoordinates) {
 
-        return new double[]{jsonCoordinates.getDouble(0), jsonCoordinates.getDouble(1)};
+        double[] coordinates = new double[jsonCoordinates.length()];
+        for (int i = 0; i < jsonCoordinates.length(); i++) {
+            coordinates[i] = jsonCoordinates.getDouble(i);
+        }
+
+        return coordinates;
     }
 
 
     private static double[][] extractMultiPointOrPolylineCoordinates(JSONArray jsonCoordinates) {
 
-        double[][] coordinates = new double[jsonCoordinates.length()][2];
+        double[][] coordinates = new double[jsonCoordinates.length()][];
         for (int i = 0; i < jsonCoordinates.length(); i++) {
             coordinates[i] = extractPointCoordinates(jsonCoordinates.getJSONArray(i));
         }

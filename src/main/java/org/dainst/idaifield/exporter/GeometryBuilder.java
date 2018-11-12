@@ -29,7 +29,7 @@ class GeometryBuilder {
         Point[] points = new Point[coordinates.length];
 
         for (int i = 0; i < coordinates.length; i++) {
-            points[i] = geometryFactory.createPoint(new Coordinate(coordinates[i][0], coordinates[i][1]));
+            points[i] = geometryFactory.createPoint(createPoint(coordinates[i]));
         }
 
         return geometryFactory.createMultiPoint(points);
@@ -48,7 +48,7 @@ class GeometryBuilder {
 
             for (int j = 0; j < polylineCoordinates.length; j++) {
                 double[] pointCoordinates = polylineCoordinates[j];
-                points[j] = new Coordinate(pointCoordinates[0], pointCoordinates[1]);
+                points[j] = createPoint(pointCoordinates);
             }
 
             polylines[i] = geometryFactory.createLineString(points);
@@ -73,7 +73,7 @@ class GeometryBuilder {
                 List<Coordinate> points = new ArrayList<>();
 
                 for (double[] pointCoordinates : linearRingCoordinates) {
-                    points.add(new Coordinate(pointCoordinates[0], pointCoordinates[1]));
+                    points.add(createPoint(pointCoordinates));
                 }
 
                 closeRingIfNecessary(points);
@@ -93,6 +93,17 @@ class GeometryBuilder {
         }
 
         return geometryFactory.createMultiPolygon(polygons);
+    }
+
+
+    private static Coordinate createPoint(double[] coordinates) {
+
+        Coordinate coordinate = new Coordinate();
+        coordinate.setX(coordinates[0]);
+        coordinate.setY(coordinates[1]);
+        if (coordinates.length == 3) coordinate.setZ(coordinates[2]);
+
+        return coordinate;
     }
 
 

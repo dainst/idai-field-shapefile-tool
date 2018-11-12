@@ -59,9 +59,7 @@ public class Datastore {
 
         System.out.println(document.get("_id"));
 
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-
-        try {
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpPut httpPut = new HttpPut("http://localhost:3000/" + projectName + "/"
                     + document.get("_id"));
             httpPut.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
@@ -69,33 +67,23 @@ public class Datastore {
             httpPut.setEntity(new StringEntity(document.toString()));
 
             httpClient.execute(httpPut);
-        } finally {
-            httpClient.close();
         }
     }
 
 
     private static JSONArray getJsonData(String projectName, String query) throws Exception {
 
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-
-        try {
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpPost httpPost = new HttpPost("http://localhost:3000/" + projectName + "/_find");
             httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
             httpPost.setHeader(HttpHeaders.ACCEPT, "application/json");
             httpPost.setEntity(new StringEntity(query));
 
-            CloseableHttpResponse response = httpClient.execute(httpPost);
-
-            try {
+            try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
                 JSONObject json = new JSONObject(EntityUtils.toString(response.getEntity(),
                         "UTF-8"));
                 return json.getJSONArray("docs");
-            } finally {
-                response.close();
             }
-        } finally {
-            httpClient.close();
         }
     }
 

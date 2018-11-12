@@ -33,9 +33,9 @@ class ZipArchiveBuilder {
                 FileInputStream fileInputStream = new FileInputStream(
                         inputFolder.getAbsolutePath() + File.separator + fileName
                 );
-                BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream, BUFFER);
 
-                try {
+                try (BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream,
+                        BUFFER)) {
                     ZipEntry entry = new ZipEntry(inputFolder.getName() + File.separator + fileName);
                     zipOutputStream.putNextEntry(entry);
 
@@ -43,8 +43,6 @@ class ZipArchiveBuilder {
                     while((count = bufferedInputStream.read(data, 0, BUFFER)) != -1) {
                         zipOutputStream.write(data, 0, count);
                     }
-                } finally {
-                    bufferedInputStream.close();
                 }
             }
         } finally {
